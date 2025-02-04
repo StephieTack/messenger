@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LoginComponent } from './login/login.component';
@@ -22,6 +22,17 @@ export class AppComponent {
   messages: { sender: string; text: string }[] = [];
   messageText: string = '';
 
+  ngOnInit() {
+    // Prüfen, ob der Benutzer im LocalStorage gespeichert ist
+    const storedUser = localStorage.getItem('user');
+    const storedLoginStatus = localStorage.getItem('isLoggedIn');
+
+    if (storedUser && storedLoginStatus === 'true') {
+      this.user = JSON.parse(storedUser);
+      this.isLoggedIn = true;
+    }
+  }
+
   handleLogin(userData: {
     firstName: string;
     lastName: string;
@@ -29,6 +40,10 @@ export class AppComponent {
   }) {
     this.user = userData;
     this.isLoggedIn = true;
+
+    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('user', JSON.stringify(userData));
+
     console.log('User logged in:', this.user);
   }
 
