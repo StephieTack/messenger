@@ -16,16 +16,35 @@
 
   section
     width: 100%
-    max-width: 600px
+    max-width: 800px
     background: #fff
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1)
     border-radius: 8px
     padding: 1.5rem
     box-sizing: border-box
 
+    .container
+      display: flex
+      justify-content: space-between
+
     h2
       font-size: 1.5rem
       margin-bottom: 1rem
+
+    #logoutButton
+      width: auto
+      padding: 0.5rem 1rem
+      background: #ff6b6b
+      color: #fff
+      border: none
+      border-radius: 4px
+      font-size: 1rem
+      cursor: pointer
+      align-self: flex-end
+      margin-bottom: 2rem
+
+      &:hover
+        background: #e55a5a  
 
     .messages
       ul
@@ -62,7 +81,6 @@
             color: #333
             word-wrap: break-word
 
-  // Styling für das Formular
   #messageForm
     display: flex
     flex-direction: column
@@ -70,16 +88,15 @@
     width: 100%
 
     #messageInput
-      // width: 100%
       padding: 0.8rem
       font-family: Arial, sans-serif
       font-size: 1rem
       border: 1px solid #ccc
       border-radius: 4px
       margin-bottom: 0.5rem
-      resize: vertical  // Der Benutzer kann das Textfeld vertikal vergrößern
-      min-height: 3rem   // Setze eine minimale Höhe, falls der Inhalt weniger als 3 Zeilen hat
-      max-height: 15rem  // Optional: Maximalhöhe, um zu verhindern, dass das Feld zu groß wird
+      resize: vertical  
+      min-height: 3rem   
+      max-height: 15rem  
       overflow-y: auto
 
     #sendButton
@@ -92,40 +109,7 @@
       font-size: 1rem
       cursor: pointer
       align-self: flex-end
+      margin-top: 0.5rem
 
       &:hover
         background-color: #357ab8
-
-  button
-    width: auto
-    padding: 0.5rem 1rem
-    background: #ff6b6b
-    color: #fff
-    border: none
-    border-radius: 4px
-    font-size: 1rem
-    cursor: pointer
-    align-self: flex-end
-    margin-top: 1rem
-
-    &:hover
-      background: #e55a5a
-
-// Responsive Design
-@media (max-width: 768px)
-  .main
-    padding: 0.5rem
-
-  section
-    padding: 1rem
-
-  #messageForm
-    flex-direction: column
-
-    #messageInput
-      padding: 1rem
-
-    #sendButton
-      width: 100%
-      padding: 0.8rem 1.2rem
-      margin-top: 0.5rem
