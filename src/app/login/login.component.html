@@ -1,9 +1,12 @@
-<form [formGroup]="loginForm" (submit)="submitApplication()">
-  <label for="first-name">First name</label>
+<form [formGroup]="loginForm" (submit)="submitLogin()">
+  <label for="first-name">First Name:</label>
   <input id="first-name" type="text" formControlName="firstName" />
-  <label for="last-name">Last name</label>
+
+  <label for="last-name">Last Name:</label>
   <input id="last-name" type="text" formControlName="lastName" />
-  <label for="email">Email</label>
+
+  <label for="email">Email:</label>
   <input id="email" type="email" formControlName="email" />
-  <button class="primary">Login</button>
+
+  <button type="submit">Login</button>
 </form>

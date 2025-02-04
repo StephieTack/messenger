@@ -2,30 +2,31 @@
   <body>
     <h1>Messenger</h1>
 
-    @if(!isLoggedIn){
-    <login (login)="handleLogin()"></login>
-    } @if(isLoggedIn){
-    <form id="messageForm" (ngSubmit)="sendMessage()">
+    @if(!isLoggedIn) {
+    <login (login)="handleLogin($event)"></login>
+    } @if(isLoggedIn) {
+    <h2>Willkommen, {{ user.firstName }}!</h2>
+
+    <form id="messageForm" (submit)="sendMessage()">
       <input
         type="text"
         id="messageInput"
-        [(ngModel)]="message"
-        name="message"
         placeholder="Nachricht eingeben"
-        required
+        [(ngModel)]="messageText"
+        name="message"
       />
       <button type="submit" id="sendButton">Senden</button>
     </form>
 
-    <!-- 🔥 Hier werden die Nachrichten ausgegeben -->
     <div class="messages">
-      <h2>Nachrichten:</h2>
-      <div *ngFor="let msg of messages" class="message">
-        {{ msg }}
-      </div>
+      <h3>Gesendete Nachrichten:</h3>
+      <ul>
+        <li *ngFor="let msg of messages">
+          <strong>{{ msg.sender }}:</strong> {{ msg.text }}
+        </li>
+      </ul>
     </div>
     }
   </body>
 </main>
-
 <router-outlet />

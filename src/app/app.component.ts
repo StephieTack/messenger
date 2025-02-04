@@ -2,29 +2,41 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LoginComponent } from './login/login.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, FormsModule, LoginComponent],
+  standalone: true,
+  imports: [RouterOutlet, FormsModule, LoginComponent, CommonModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.sass',
 })
 export class AppComponent {
   title = 'messenger';
   isLoggedIn = false;
-  message = ''; // Aktuelle Eingabe
-  messages: string[] = []; // Array für alle Nachrichten
+  user: { firstName: string; lastName: string; email: string } = {
+    firstName: '',
+    lastName: '',
+    email: '',
+  };
+  messages: { sender: string; text: string }[] = [];
+  messageText: string = '';
 
-  handleLogin() {
+  handleLogin(userData: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  }) {
+    this.user = userData;
     this.isLoggedIn = true;
-    console.log('User is logged in');
+    console.log('User logged in:', this.user);
   }
 
   sendMessage() {
-    if (this.message.trim() !== '') {
-      this.messages.push(this.message); // Nachricht zum Array hinzufügen
-      console.log('Gesendete Nachricht:', this.message);
-      this.message = ''; // Input-Feld leeren
-    }
+    if (this.messageText.trim() === '') return;
+
+    this.messages.push({ sender: this.user.firstName, text: this.messageText });
+    console.log('Messages:', this.messages);
+    this.messageText = '';
   }
 }
