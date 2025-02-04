@@ -1,12 +1,78 @@
-<form [formGroup]="loginForm" (submit)="submitLogin()">
-  <label for="first-name">First Name:</label>
-  <input id="first-name" type="text" formControlName="firstName" />
+<!-- <form [formGroup]="loginForm" (ngSubmit)="submitLogin()">
+  <label for="firstName">Vorname</label>
+  <input id="firstName" formControlName="firstName" />
 
-  <label for="last-name">Last Name:</label>
-  <input id="last-name" type="text" formControlName="lastName" />
+  <label for="lastName">Nachname</label>
+  <input id="lastName" formControlName="lastName" />
 
-  <label for="email">Email:</label>
+  <label for="email">E-Mail</label>
   <input id="email" type="email" formControlName="email" />
 
-  <button type="submit">Login</button>
+  <button type="submit" [disabled]="loginForm.invalid">Absenden</button>
+</form> -->
+
+<form [formGroup]="loginForm" (ngSubmit)="submitLogin()">
+  <div>
+    <label for="firstName">Firstname</label>
+    <input
+      id="firstName"
+      formControlName="firstName"
+      type="text"
+      placeholder="Firstname"
+    />
+    <div
+      *ngIf="
+        loginForm.get('firstName')?.hasError('required') &&
+        loginForm.get('firstName')?.touched
+      "
+    >
+      <small class="error">Please fill in your Firstname.</small>
+    </div>
+  </div>
+
+  <div>
+    <label for="lastName">Lastname</label>
+    <input
+      id="lastName"
+      formControlName="lastName"
+      type="text"
+      placeholder="Lastname"
+    />
+    <div
+      *ngIf="
+        loginForm.get('lastName')?.hasError('required') &&
+        loginForm.get('lastName')?.touched
+      "
+    >
+      <small class="error">Please fill in your LastName.</small>
+    </div>
+  </div>
+
+  <div>
+    <label for="email">E-Mail</label>
+    <input
+      id="email"
+      formControlName="email"
+      type="email"
+      placeholder="E-Mail"
+    />
+    <div
+      *ngIf="
+        loginForm.get('email')?.hasError('required') &&
+        loginForm.get('email')?.touched
+      "
+    >
+      <small class="error">Please fill in your E-Mail.</small>
+    </div>
+    <div
+      *ngIf="
+        loginForm.get('email')?.hasError('email') &&
+        loginForm.get('email')?.touched
+      "
+    >
+      <small class="error">Please provide a valid E-Mail address.</small>
+    </div>
+  </div>
+
+  <button type="submit" [disabled]="loginForm.invalid">Login</button>
 </form>
