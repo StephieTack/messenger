@@ -23,7 +23,6 @@ export class AppComponent {
   messageText: string = '';
 
   ngOnInit() {
-    // Prüfen, ob der Benutzer im LocalStorage gespeichert ist
     const storedUser = localStorage.getItem('user');
     const storedLoginStatus = localStorage.getItem('isLoggedIn');
 
@@ -59,5 +58,20 @@ export class AppComponent {
     });
     console.log('Messages:', this.messages);
     this.messageText = '';
+  }
+
+  logout() {
+    // Benutzerdaten aus dem LocalStorage löschen
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('user');
+
+    // Nachrichten leeren
+    this.messages = [];
+
+    // Benutzerstatus zurücksetzen
+    this.isLoggedIn = false;
+    this.user = { firstName: '', lastName: '', email: '' };
+
+    console.log('User logged out');
   }
 }
