@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [RouterOutlet, FormsModule, LoginComponent, CommonModule],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.sass',
+  styleUrls: ['./app.component.sass'],
 })
 export class AppComponent {
   title = 'messenger';
@@ -19,7 +19,7 @@ export class AppComponent {
     lastName: '',
     email: '',
   };
-  messages: { sender: string; text: string }[] = [];
+  messages: { sender: string; text: string; timestamp: number }[] = [];
   messageText: string = '';
 
   ngOnInit() {
@@ -50,7 +50,13 @@ export class AppComponent {
   sendMessage() {
     if (this.messageText.trim() === '') return;
 
-    this.messages.push({ sender: this.user.firstName, text: this.messageText });
+    const timestamp = Date.now();
+
+    this.messages.push({
+      sender: this.user.firstName,
+      text: this.messageText,
+      timestamp,
+    });
     console.log('Messages:', this.messages);
     this.messageText = '';
   }

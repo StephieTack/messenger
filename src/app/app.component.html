@@ -23,6 +23,7 @@
       <ul>
         <li *ngFor="let msg of messages">
           <strong>{{ msg.sender }}:</strong> {{ msg.text }}
+          <span>{{ msg.timestamp | date : "dd.MM.yyyy HH:mm" }}</span>
         </li>
       </ul>
     </div>
