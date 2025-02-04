@@ -1,4 +1,4 @@
-<main class="main">
+<!-- <main class="main">
   <body>
     <h1>Messenger</h1>
 
@@ -30,4 +30,48 @@
     }
   </body>
 </main>
-<router-outlet />
+<router-outlet /> -->
+<main class="main">
+  <header>
+    <h1>Messenger</h1>
+  </header>
+
+  <!-- Zeigt das Login-Formular, wenn der Benutzer nicht eingeloggt ist -->
+  <ng-container *ngIf="!isLoggedIn">
+    <login (login)="handleLogin($event)"></login>
+  </ng-container>
+
+  <!-- Zeigt die Nachrichtenschnittstelle, wenn der Benutzer eingeloggt ist -->
+  <ng-container *ngIf="isLoggedIn">
+    <section>
+      <h2>Willkommen, {{ user.firstName }}!</h2>
+
+      <!-- Logout-Button -->
+      <button (click)="logout()">Logout</button>
+
+      <!-- Nachricht senden -->
+      <form id="messageForm" (submit)="sendMessage()">
+        <input
+          type="text"
+          id="messageInput"
+          placeholder="Nachricht eingeben"
+          [(ngModel)]="messageText"
+          name="message"
+        />
+        <button type="submit" id="sendButton">Senden</button>
+      </form>
+
+      <!-- Anzeige der gesendeten Nachrichten -->
+      <div class="messages">
+        <h3>Gesendete Nachrichten:</h3>
+        <ul>
+          <li *ngFor="let msg of messages">
+            <strong>{{ msg.sender }}:</strong> {{ msg.text }}
+            <span>{{ msg.timestamp | date : "dd.MM.yyyy HH:mm" }}</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </ng-container>
+</main>
+<router-outlet></router-outlet>
