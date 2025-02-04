@@ -1,12 +1,12 @@
-<form [formGroup]="loginForm" (submit)="submitLogin()">
-  <label for="first-name">First Name:</label>
-  <input id="first-name" type="text" formControlName="firstName" />
+<form [formGroup]="loginForm" (ngSubmit)="submitLogin()">
+  <label for="firstName">Vorname</label>
+  <input id="firstName" formControlName="firstName" />
 
-  <label for="last-name">Last Name:</label>
-  <input id="last-name" type="text" formControlName="lastName" />
+  <label for="lastName">Nachname</label>
+  <input id="lastName" formControlName="lastName" />
 
-  <label for="email">Email:</label>
+  <label for="email">E-Mail</label>
   <input id="email" type="email" formControlName="email" />
 
-  <button type="submit">Login</button>
+  <button type="submit" [disabled]="loginForm.invalid">Absenden</button>
 </form>

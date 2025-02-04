@@ -61,14 +61,10 @@ export class AppComponent {
   }
 
   logout() {
-    // Benutzerdaten aus dem LocalStorage löschen
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('user');
 
-    // Nachrichten leeren
     this.messages = [];
-
-    // Benutzerstatus zurücksetzen
     this.isLoggedIn = false;
     this.user = { firstName: '', lastName: '', email: '' };
 
