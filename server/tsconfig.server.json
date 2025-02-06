@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist", // Ausgabeordner für den Server (Websocket)
+    "target": "ES2022", // Zielversion von JavaScript
+    "module": "CommonJS", // Node.js benötigt CommonJS-Module
+    "esModuleInterop": true, // Unterstützung für ES-Module mit CommonJS
+    "moduleResolution": "node", // Node.js Modulauflösung
+    "strict": true, // Strikte Typisierung
+    "skipLibCheck": true, // Überspringe Bibliotheksprüfungen
+    "noImplicitAny": true, // Verhindert 'any' Typ
+    "noImplicitReturns": true, // Verhindert unklare Rückgabewerte
+    "noFallthroughCasesInSwitch": true, // Verhindert unvollständige Switch-Statements
+    "experimentalDecorators": true, // Unterstützung für Dekoratoren
+    "emitDecoratorMetadata": true // Dekorator-Metadaten ausgeben
+  },
+  "include": [
+    "server.ts", // Haupt-Backend-Datei (Websocket)
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules" // Exkludiere 'node_modules'-Ordner
+  ]
+}
