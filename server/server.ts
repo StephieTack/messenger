@@ -1,16 +1,28 @@
-import * as WebSocket from 'ws';
-// const WebSocket = require('ws');
+import * as WebSocket from 'ws'; // WebSocket-Modul importieren
 
+// WebSocket-Server initialisieren
 const wss = new WebSocket.Server({ port: 8080 });
 
+// Verbindungsevent behandeln
 wss.on('connection', (ws) => {
-  console.log('Client connected');
+  console.log('Client connected'); // Logge, wenn sich ein Client verbindet
 
-  ws.on('message', (message) => {
-    console.log(`Received message: ${message}`);
+  // Begrüßungsnachricht im JSON-Format senden
+  ws.send(JSON.stringify({ message: 'Welcome to the WebSocket server!!!' }));
+
+  // Nachricht vom Client empfangen
+  ws.on('message', (message: string) => {
+    console.log(`Received message: ${message}`); // Logge die empfangene Nachricht
+
+    // Nachricht an alle verbundenen Clients senden
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        // Nachricht im JSON-Format senden
+        client.send(JSON.stringify({ message: `Server received: ${message}` }));
+      }
+    });
   });
-
-  ws.send('Welcome to the WebSocket server!');
 });
 
+// Server-Start-Log
 console.log('WebSocket server is running on ws://localhost:8080');

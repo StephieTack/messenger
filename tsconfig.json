@@ -1,27 +1,24 @@
-/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
-/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
 {
-  "compileOnSave": false,
   "compilerOptions": {
-    "outDir": "./dist/out-tsc",
-    "strict": true,
-    "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "skipLibCheck": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "moduleResolution": "bundler",
-    "importHelpers": true,
-    "target": "ES2022",
-    "module": "ES2022"
+    "outDir": "./dist/out-tsc", // Standard Angular Ausgabeordner
+    "target": "ES2022", // Zielversion von JavaScript
+    "module": "ES2022", // ES Module
+    "esModuleInterop": true, // Unterstützung für ES-Module mit CommonJS
+    "moduleResolution": "node", // Node.js Modulauflösung
+    "strict": true, // Strikte Typisierung
+    "skipLibCheck": true, // Überspringe Bibliotheksprüfungen
+    "noImplicitAny": true, // Verhindert 'any' Typ
+    "experimentalDecorators": true, // Unterstützung für Dekoratoren
+    "emitDecoratorMetadata": true // Dekorator-Metadaten ausgeben
   },
   "angularCompilerOptions": {
-    "enableI18nLegacyMessageIdFormat": false,
-    "strictInjectionParameters": true,
-    "strictInputAccessModifiers": true,
-    "strictTemplates": true
-  }
+    "strictTemplates": true // Strikte Template-Überprüfung in Angular
+  },
+  "include": [
+    "src/**/*.ts", // Alle TypeScript-Dateien im 'src'-Verzeichnis
+    "src/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules" // Exkludiere 'node_modules'-Ordner
+  ]
 }
