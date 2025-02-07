@@ -1,23 +1,20 @@
 {
   "compilerOptions": {
-    "outDir": "./dist/out-tsc", // Standard Angular Ausgabeordner
+    "outDir": "./dist", // Ausgabeordner für den Server (Websocket)
     "target": "ES2022", // Zielversion von JavaScript
-    "module": "ES2022", // ES Module
+    "module": "CommonJS", // Node.js benötigt CommonJS-Module
     "esModuleInterop": true, // Unterstützung für ES-Module mit CommonJS
     "moduleResolution": "node", // Node.js Modulauflösung
     "strict": true, // Strikte Typisierung
-    "skipLibCheck": true, // Überspringe Bibliotheksprüfungen
+    "skipLibCheck": true, // Überspringe Bibliotheksprüfung
+    "forceConsistentCasingInFileNames": true,
     "noImplicitAny": true, // Verhindert 'any' Typ
+    "noImplicitReturns": true, // Verhindert unklare Rückgabewerte
+    "noFallthroughCasesInSwitch": true, // Verhindert unvollständige Switch-Statements
     "experimentalDecorators": true, // Unterstützung für Dekoratoren
     "emitDecoratorMetadata": true // Dekorator-Metadaten ausgeben
   },
-  "angularCompilerOptions": {
-    "strictTemplates": true // Strikte Template-Überprüfung in Angular
-  },
-  "include": [
-    "src/**/*.ts", // Alle TypeScript-Dateien im 'src'-Verzeichnis
-    "src/**/*.d.ts"
-  ],
+  "include": ["server/**/*.ts", "src/**/*.ts", "server.ts"],
   "exclude": [
     "node_modules" // Exkludiere 'node_modules'-Ordner
   ]
