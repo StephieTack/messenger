@@ -3,7 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LoginComponent } from './login/login.component';
 import { CommonModule } from '@angular/common';
-import { webSocket } from 'rxjs/webSocket'; // WebSocket aus rxjs
+import { webSocket } from 'rxjs/webSocket'; // WebSocket aus RxJS
 
 @Component({
   selector: 'app-root',
@@ -24,9 +24,14 @@ export class AppComponent implements OnInit {
   messageText: string = '';
 
   // WebSocket-URL des Backends
-  private socket$ = webSocket<{ message: string }>('ws://localhost:8080'); // Erwartet ein JSON-Objekt mit einer message
+  private socket$ = webSocket<{
+    type: string;
+    message: string;
+    username?: string;
+  }>('ws://localhost:8080');
 
   ngOnInit() {
+    // Nutzerinformationen und Login-Status aus dem LocalStorage laden
     const storedUser = localStorage.getItem('user');
     const storedLoginStatus = localStorage.getItem('isLoggedIn');
 
@@ -37,10 +42,10 @@ export class AppComponent implements OnInit {
 
     // WebSocket-Verbindung herstellen und Nachrichten empfangen
     this.socket$.subscribe({
-      next: (message: { message: string }) => {
+      next: (message: { type: string; message: string }) => {
         console.log('Nachricht vom Server:', message.message);
 
-        // Nachricht dem UI hinzufügen, falls gewünscht
+        // Nachricht zum UI hinzufügen
         this.messages.push({
           sender: 'Server',
           text: message.message,
@@ -52,6 +57,7 @@ export class AppComponent implements OnInit {
     });
   }
 
+  // Login-Handling
   handleLogin(userData: {
     firstName: string;
     lastName: string;
@@ -60,6 +66,7 @@ export class AppComponent implements OnInit {
     this.user = userData;
     this.isLoggedIn = true;
 
+    // Nutzerinformationen und Login-Status im LocalStorage speichern
     localStorage.setItem('isLoggedIn', 'true');
     localStorage.setItem('user', JSON.stringify(userData));
 
@@ -67,29 +74,36 @@ export class AppComponent implements OnInit {
 
     // Nach dem Login eine Nachricht an den Server senden
     this.socket$.next({
+      type: 'login', // Typ für Login-Nachricht
       message: `User has logged in: ${this.user.firstName}`,
+      username: this.user.firstName, // Benutzername für den Server
     });
   }
 
+  // Nachricht senden
   sendMessage() {
-    if (this.messageText.trim() === '') return;
+    console.log('Current message text:', this.messageText);
+    if (this.messageText.trim() === '') {
+      console.error('Nachricht ist leer!');
+      return;
+    }
 
     const timestamp = Date.now();
-
-    this.messages.push({
+    const messageToSend = {
       sender: this.user.firstName,
       text: this.messageText,
       timestamp,
-    });
-    console.log('Messages:', this.messages);
+    };
 
-    // Nachricht über WebSocket an den Server senden
-    this.socket$.next({ message: this.messageText }); // Sendet den Text als JSON-Objekt
+    this.socket$.next({ type: 'message', message: this.messageText }); // Typ für normale Nachricht
 
-    this.messageText = '';
+    this.messages.push(messageToSend); // Nachricht ins UI hinzufügen
+    this.messageText = ''; // Eingabe zurücksetzen
   }
 
+  // Logout-Handling
   logout() {
+    // Nutzerinformationen und Login-Status aus dem LocalStorage entfernen
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('user');
 
@@ -99,7 +113,8 @@ export class AppComponent implements OnInit {
 
     console.log('User logged out');
 
-    // Beim Logout eine Nachricht an den Server senden
-    this.socket$.next({ message: 'User has logged out' });
+    // Beim Logout eine Nachricht an den Server senden und Verbindung schließen
+    this.socket$.next({ type: 'logout', message: 'User has logged out' }); // Typ für Logout-Nachricht
+    this.socket$.complete();
   }
 }

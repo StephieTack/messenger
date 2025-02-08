@@ -34,15 +34,21 @@
       </div>
 
       <!-- Nachricht senden -->
-      <form id="messageForm" (submit)="sendMessage()">
+      <form id="messageForm" (ngSubmit)="sendMessage()">
         <textarea
           id="messageInput"
           placeholder="Your message"
           [(ngModel)]="messageText"
           name="message"
           rows="5"
+          aria-label="Write your message"
         ></textarea>
-        <button type="submit" id="sendButton" aria-label="Send">
+        <button
+          type="submit"
+          id="sendButton"
+          aria-label="Send message"
+          [disabled]="!messageText.trim()"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -53,7 +59,7 @@
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
-            class="icon icon-tabler icons-tabler-outline icon-tabler-send"
+            class="icon icon-tabler icon-tabler-send"
           >
             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
             <path d="M10 14l11 -11" />
