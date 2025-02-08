@@ -9,14 +9,16 @@
     "skipLibCheck": true, // Überspringe Bibliotheksprüfungen
     "noImplicitAny": true, // Verhindert 'any' Typ
     "experimentalDecorators": true, // Unterstützung für Dekoratoren
-    "emitDecoratorMetadata": true // Dekorator-Metadaten ausgeben
+    "emitDecoratorMetadata": true, // Dekorator-Metadaten ausgeben
+    "typeRoots": ["node_modules/@types"]
   },
   "angularCompilerOptions": {
     "strictTemplates": true // Strikte Template-Überprüfung in Angular
   },
   "include": [
     "src/**/*.ts", // Alle TypeScript-Dateien im 'src'-Verzeichnis
-    "src/**/*.d.ts"
+    "src/**/*.d.ts",
+    "server.ts"
   ],
   "exclude": [
     "node_modules" // Exkludiere 'node_modules'-Ordner
