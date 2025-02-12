@@ -1,61 +1,52 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var WebSocket = require("ws"); // WebSocket-Modul importieren
-// WebSocket-Server initialisieren
+var WebSocket = require("ws");
 var wss = new WebSocket.Server({ port: 8080 });
-// Zuordnung von WebSocket-Verbindungen zu Benutzern
-var userMap = new Map(); // Speichert WebSocket-Verbindungen mit Benutzernamen
-// Verbindungsevent behandeln
+var userMap = new Map();
 wss.on('connection', function (ws) {
-    console.log('Client connected'); // Logge, wenn sich ein Client verbindet
-    // Begrüßungsnachricht im JSON-Format senden
+    console.log('Client connected.');
     ws.send(JSON.stringify({
         sender: 'Server',
-        message: 'Welcome to the WebSocket server!!!',
+        websocketMessageText: 'Welcome to the WebSocket server!!!',
     }));
-    // Nachricht vom Client empfangen
     ws.on('message', function (rawMessage) {
-        console.log("Received message: ".concat(rawMessage)); // Logge die empfangene Nachricht
+        console.log("Received message: ".concat(rawMessage));
         try {
-            // Eingehende Nachricht parsen (z.B. Benutzername einrichten)
             var parsedMessage = JSON.parse(rawMessage);
             if (parsedMessage.type === 'login' && parsedMessage.username) {
-                userMap.set(ws, parsedMessage.username); // Benutzername speichern
+                userMap.set(ws, parsedMessage.username);
                 console.log("User logged in: ".concat(parsedMessage.username));
-                broadcastMessage(parsedMessage.username, // Der tatsächliche Benutzername als Absender
-                "".concat(parsedMessage.username, " has joined the chat."));
+                broadcastMessage('Server', "".concat(parsedMessage.username, " has logged in."));
                 return;
             }
-            // Nachricht an alle verbundenen Clients senden (Broadcasting)
-            var sender = userMap.get(ws) || 'Unknown User';
-            broadcastMessage(sender, parsedMessage.message || rawMessage, ws); // Inhalt weiterleiten
+            var sender = userMap.get(ws);
+            if (!sender) {
+                console.error('Sender not found in userMap. Ignoring message.');
+                return; // Nachricht ignorieren, wenn Benutzer nicht gefunden
+            }
+            broadcastMessage(sender, parsedMessage.websocketMessageText || rawMessage);
         }
         catch (error) {
             console.error('Error parsing message:', error);
         }
     });
-    // Verbindungsevent behandeln
     ws.on('close', function () {
         var username = userMap.get(ws) || 'Unknown User';
         console.log("Client disconnected: ".concat(username));
-        userMap.delete(ws); // Benutzer entfernen
-        broadcastMessage(username, // Der tatsächliche Benutzername als Absender
-        "".concat(username, " has left the chat."));
+        userMap.delete(ws);
+        broadcastMessage('Server', "".concat(username, " has disconnected."));
     });
-    // Fehler im Socket-Handling behandeln
     ws.on('error', function (error) {
         console.error("WebSocket error: ".concat(error));
     });
 });
-// Nachricht an alle verbundenen Clients senden
-function broadcastMessage(sender, message, excludeWs) {
-    var formattedMessage = JSON.stringify({ sender: sender, message: message }); // Nachricht formatieren
+function broadcastMessage(sender, message) {
+    var formattedMessage = JSON.stringify({
+        sender: sender,
+        websocketMessageText: message,
+    });
     wss.clients.forEach(function (client) {
-        // Nachricht nicht an den Absender zurücksenden
-        if (client !== excludeWs && client.readyState === WebSocket.OPEN) {
-            client.send(formattedMessage); // Serialisierte Nachricht senden
-        }
+        client.send(formattedMessage);
     });
 }
-// Server-Start-Log
 console.log('WebSocket server is running on ws://localhost:8080');

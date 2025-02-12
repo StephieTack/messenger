@@ -27,7 +27,7 @@
               <span>{{ msg.timestamp | date : "dd.MM.yyyy HH:mm" }}</span>
             </div>
             <div class="message-body">
-              {{ msg.text }}
+              {{ msg.messageText }}
             </div>
           </li>
         </ul>
@@ -39,7 +39,7 @@
           id="messageInput"
           placeholder="Your message"
           [(ngModel)]="messageText"
-          name="message"
+          name="messageText"
           rows="5"
           aria-label="Write your message"
         ></textarea>
