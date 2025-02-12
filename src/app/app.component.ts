@@ -39,6 +39,7 @@ export class AppComponent implements OnInit {
   initializeWebSocket() {
     this.socket$.subscribe({
       next: (message: WebSocketMessage) => {
+        // Ignoriere Nachrichten, die vom eigenen Benutzer stammen
         if (message.sender === this.currentUser) {
           return;
         }
@@ -84,6 +85,7 @@ export class AppComponent implements OnInit {
       timestamp: Date.now(),
     };
 
+    // Nachricht an den Server senden
     this.socket$.next({
       type: 'message',
       websocketMessageText: this.messageText,

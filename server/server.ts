@@ -1,11 +1,11 @@
 import * as WebSocket from 'ws';
 
 const wss = new WebSocket.Server({ port: 8080 });
-const userMap = new Map<WebSocket, string>();
 
 wss.on('connection', (ws) => {
   console.log('Client connected.');
 
+  // Willkommensnachricht an den neu verbundenen Client senden
   ws.send(
     JSON.stringify({
       sender: 'Server',
@@ -13,26 +13,30 @@ wss.on('connection', (ws) => {
     })
   );
 
+  // Nachrichtenempfang und -verarbeitung
   ws.on('message', (rawMessage: string) => {
     console.log(`Received message: ${rawMessage}`);
 
     try {
       const parsedMessage = JSON.parse(rawMessage);
 
+      // Beim Login-Event
       if (parsedMessage.type === 'login' && parsedMessage.username) {
-        userMap.set(ws, parsedMessage.username);
         console.log(`User logged in: ${parsedMessage.username}`);
 
+        // Nachricht an alle Clients senden, dass der Benutzer eingeloggt ist
         broadcastMessage('Server', `${parsedMessage.username} has logged in.`);
         return;
       }
 
-      const sender = userMap.get(ws);
+      // Alle anderen Nachrichten weiterleiten
+      const sender = parsedMessage.sender;
       if (!sender) {
-        console.error('Sender not found in userMap. Ignoring message.');
-        return; // Nachricht ignorieren, wenn Benutzer nicht gefunden
+        console.error('Sender is not defined. Ignoring message.');
+        return; // Ignoriere Nachricht ohne Sender
       }
 
+      // Sende die Nachricht an alle Clients
       broadcastMessage(
         sender,
         parsedMessage.websocketMessageText || rawMessage
@@ -42,11 +46,10 @@ wss.on('connection', (ws) => {
     }
   });
 
+  // Client-Verbindung geschlossen
   ws.on('close', () => {
-    const username = userMap.get(ws) || 'Unknown User';
-    console.log(`Client disconnected: ${username}`);
-    userMap.delete(ws);
-    broadcastMessage('Server', `${username} has disconnected.`);
+    console.log('Client disconnected.');
+    broadcastMessage('Server', 'A user has disconnected.');
   });
 
   ws.on('error', (error) => {
@@ -54,6 +57,7 @@ wss.on('connection', (ws) => {
   });
 });
 
+// Alle Clients mit einer Nachricht benachrichtigen
 function broadcastMessage(sender: string, message: string) {
   const formattedMessage = JSON.stringify({
     sender: sender,
@@ -61,7 +65,9 @@ function broadcastMessage(sender: string, message: string) {
   });
 
   wss.clients.forEach((client) => {
-    client.send(formattedMessage);
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(formattedMessage);
+    }
   });
 }
 
