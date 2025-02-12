@@ -3,7 +3,8 @@ import { RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LoginComponent } from './login/login.component';
 import { CommonModule } from '@angular/common';
-import { webSocket } from 'rxjs/webSocket'; // WebSocket aus RxJS
+import { webSocket } from 'rxjs/webSocket';
+import { User, Message, WebSocketMessage } from './models/interfaces';
 
 @Component({
   selector: 'app-root',
@@ -15,106 +16,91 @@ import { webSocket } from 'rxjs/webSocket'; // WebSocket aus RxJS
 export class AppComponent implements OnInit {
   title = 'messenger';
   isLoggedIn = false;
-  user: { firstName: string; lastName: string; email: string } = {
-    firstName: '',
-    lastName: '',
-    email: '',
-  };
-  messages: { sender: string; text: string; timestamp: number }[] = [];
+  user: User = { firstName: '', lastName: '', email: '' };
+  messages: Message[] = [];
   messageText: string = '';
 
-  // WebSocket-URL des Backends
-  private socket$ = webSocket<{
-    type: string;
-    message: string;
-    username?: string;
-  }>('ws://localhost:8080');
+  private socket$ = webSocket<WebSocketMessage>('ws://localhost:8080');
+
+  private currentUser: string = '';
 
   ngOnInit() {
-    // Nutzerinformationen und Login-Status aus dem LocalStorage laden
     const storedUser = localStorage.getItem('user');
     const storedLoginStatus = localStorage.getItem('isLoggedIn');
 
     if (storedUser && storedLoginStatus === 'true') {
       this.user = JSON.parse(storedUser);
       this.isLoggedIn = true;
+      this.currentUser = this.user.firstName;
+      this.initializeWebSocket();
     }
+  }
 
-    // WebSocket-Verbindung herstellen und Nachrichten empfangen
+  initializeWebSocket() {
     this.socket$.subscribe({
-      next: (message: { type: string; message: string }) => {
-        console.log('Nachricht vom Server:', message.message);
+      next: (message: WebSocketMessage) => {
+        if (message.sender === this.currentUser) {
+          return;
+        }
 
-        // Nachricht zum UI hinzufügen
         this.messages.push({
-          sender: 'Server',
-          text: message.message,
+          sender: message.sender,
+          messageText: message.websocketMessageText,
           timestamp: Date.now(),
         });
       },
       error: (err) => console.error('WebSocket error:', err),
-      complete: () => console.log('WebSocket-Verbindung geschlossen'),
+      complete: () => console.log('WebSocket connection closed'),
     });
   }
 
-  // Login-Handling
-  handleLogin(userData: {
-    firstName: string;
-    lastName: string;
-    email: string;
-  }) {
+  handleLogin(userData: User) {
     this.user = userData;
     this.isLoggedIn = true;
+    this.currentUser = this.user.firstName;
 
-    // Nutzerinformationen und Login-Status im LocalStorage speichern
     localStorage.setItem('isLoggedIn', 'true');
     localStorage.setItem('user', JSON.stringify(userData));
 
-    console.log('User logged in:', this.user);
+    this.initializeWebSocket();
 
-    // Nach dem Login eine Nachricht an den Server senden
     this.socket$.next({
-      type: 'login', // Typ für Login-Nachricht
-      message: `User has logged in: ${this.user.firstName}`,
-      username: this.user.firstName, // Benutzername für den Server
+      type: 'login',
+      websocketMessageText: 'User has logged in.',
+      sender: this.user.firstName,
     });
   }
 
-  // Nachricht senden
   sendMessage() {
-    console.log('Current message text:', this.messageText);
-    if (this.messageText.trim() === '') {
-      console.error('Nachricht ist leer!');
-      return;
-    }
-
-    const timestamp = Date.now();
-    const messageToSend = {
+    const messageToSend: Message = {
       sender: this.user.firstName,
-      text: this.messageText,
-      timestamp,
+      messageText: this.messageText,
+      timestamp: Date.now(),
     };
 
-    this.socket$.next({ type: 'message', message: this.messageText }); // Typ für normale Nachricht
+    this.socket$.next({
+      type: 'message',
+      websocketMessageText: this.messageText,
+      sender: this.user.firstName,
+    });
 
-    this.messages.push(messageToSend); // Nachricht ins UI hinzufügen
-    this.messageText = ''; // Eingabe zurücksetzen
+    this.messages.push(messageToSend);
+    this.messageText = '';
   }
 
-  // Logout-Handling
   logout() {
-    // Nutzerinformationen und Login-Status aus dem LocalStorage entfernen
+    this.socket$.next({
+      type: 'logout',
+      websocketMessageText: `${this.user.firstName} has logged out.`,
+      sender: this.user.firstName,
+    });
+
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('user');
-
     this.messages = [];
     this.isLoggedIn = false;
     this.user = { firstName: '', lastName: '', email: '' };
 
-    console.log('User logged out');
-
-    // Beim Logout eine Nachricht an den Server senden und Verbindung schließen
-    this.socket$.next({ type: 'logout', message: 'User has logged out' }); // Typ für Logout-Nachricht
     this.socket$.complete();
   }
 }
