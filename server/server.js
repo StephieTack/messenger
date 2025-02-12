@@ -15,10 +15,10 @@ wss.on('connection', function (ws) {
         try {
             var parsedMessage = JSON.parse(rawMessage);
             // Beim Login-Event
-            if (parsedMessage.type === 'login' && parsedMessage.username) {
-                console.log("User logged in: ".concat(parsedMessage.username));
+            if (parsedMessage.type === 'login' && parsedMessage.sender) {
+                console.log("User logged in: ".concat(parsedMessage.sender));
                 // Nachricht an alle Clients senden, dass der Benutzer eingeloggt ist
-                broadcastMessage('Server', "".concat(parsedMessage.username, " has logged in."));
+                broadcastMessage('Server', "".concat(parsedMessage.sender, " has logged in."));
                 return;
             }
             // Alle anderen Nachrichten weiterleiten

@@ -5,7 +5,6 @@ const wss = new WebSocket.Server({ port: 8080 });
 wss.on('connection', (ws) => {
   console.log('Client connected.');
 
-  // Willkommensnachricht an den neu verbundenen Client senden
   ws.send(
     JSON.stringify({
       sender: 'Server',
@@ -13,30 +12,25 @@ wss.on('connection', (ws) => {
     })
   );
 
-  // Nachrichtenempfang und -verarbeitung
   ws.on('message', (rawMessage: string) => {
     console.log(`Received message: ${rawMessage}`);
 
     try {
       const parsedMessage = JSON.parse(rawMessage);
 
-      // Beim Login-Event
-      if (parsedMessage.type === 'login' && parsedMessage.username) {
-        console.log(`User logged in: ${parsedMessage.username}`);
+      if (parsedMessage.type === 'login' && parsedMessage.sender) {
+        console.log(`User logged in: ${parsedMessage.sender}`);
 
-        // Nachricht an alle Clients senden, dass der Benutzer eingeloggt ist
-        broadcastMessage('Server', `${parsedMessage.username} has logged in.`);
+        broadcastMessage('Server', `${parsedMessage.sender} has logged in.`);
         return;
       }
 
-      // Alle anderen Nachrichten weiterleiten
       const sender = parsedMessage.sender;
       if (!sender) {
         console.error('Sender is not defined. Ignoring message.');
-        return; // Ignoriere Nachricht ohne Sender
+        return;
       }
 
-      // Sende die Nachricht an alle Clients
       broadcastMessage(
         sender,
         parsedMessage.websocketMessageText || rawMessage
@@ -46,7 +40,6 @@ wss.on('connection', (ws) => {
     }
   });
 
-  // Client-Verbindung geschlossen
   ws.on('close', () => {
     console.log('Client disconnected.');
     broadcastMessage('Server', 'A user has disconnected.');
@@ -57,7 +50,6 @@ wss.on('connection', (ws) => {
   });
 });
 
-// Alle Clients mit einer Nachricht benachrichtigen
 function broadcastMessage(sender: string, message: string) {
   const formattedMessage = JSON.stringify({
     sender: sender,

@@ -14,5 +14,4 @@ export interface WebSocketMessage {
   type: string;
   websocketMessageText: string;
   sender: string;
-  username?: string;
 }

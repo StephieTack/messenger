@@ -39,7 +39,6 @@ export class AppComponent implements OnInit {
   initializeWebSocket() {
     this.socket$.subscribe({
       next: (message: WebSocketMessage) => {
-        // Ignoriere Nachrichten, die vom eigenen Benutzer stammen
         if (message.sender === this.currentUser) {
           return;
         }
@@ -69,28 +68,20 @@ export class AppComponent implements OnInit {
       type: 'login',
       websocketMessageText: 'User has logged in.',
       sender: this.user.firstName,
-      username: this.user.firstName,
     });
   }
 
   sendMessage() {
-    if (this.messageText.trim() === '') {
-      console.error('Message is empty!');
-      return;
-    }
-
     const messageToSend: Message = {
       sender: this.user.firstName,
       messageText: this.messageText,
       timestamp: Date.now(),
     };
 
-    // Nachricht an den Server senden
     this.socket$.next({
       type: 'message',
       websocketMessageText: this.messageText,
       sender: this.user.firstName,
-      username: this.user.firstName,
     });
 
     this.messages.push(messageToSend);
@@ -102,7 +93,6 @@ export class AppComponent implements OnInit {
       type: 'logout',
       websocketMessageText: `${this.user.firstName} has logged out.`,
       sender: this.user.firstName,
-      username: this.user.firstName,
     });
 
     localStorage.removeItem('isLoggedIn');
