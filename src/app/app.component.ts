@@ -36,13 +36,16 @@ export class AppComponent implements OnInit {
     }
   }
 
+  // WebSocket-Verbindung und Nachrichtensubscription initialisieren
   initializeWebSocket() {
     this.socket$.subscribe({
       next: (message: WebSocketMessage) => {
+        // Wenn die Nachricht vom aktuellen Benutzer kommt, überspringen wir sie
         if (message.sender === this.currentUser) {
           return;
         }
 
+        // Empfangene Nachricht zum Nachrichtenarray hinzufügen
         this.messages.push({
           sender: message.sender,
           messageText: message.websocketMessageText,
@@ -54,6 +57,7 @@ export class AppComponent implements OnInit {
     });
   }
 
+  // Login-Funktion und Initialisierung der WebSocket-Verbindung
   handleLogin(userData: User) {
     this.user = userData;
     this.isLoggedIn = true;
@@ -62,8 +66,10 @@ export class AppComponent implements OnInit {
     localStorage.setItem('isLoggedIn', 'true');
     localStorage.setItem('user', JSON.stringify(userData));
 
+    // WebSocket initialisieren und Login-Nachricht senden
     this.initializeWebSocket();
 
+    // Broadcast der Login-Nachricht an alle anderen Clients (ausgenommen den aktuellen)
     this.socket$.next({
       type: 'login',
       websocketMessageText: 'User has logged in.',
@@ -71,6 +77,7 @@ export class AppComponent implements OnInit {
     });
   }
 
+  // Nachricht an den Server und andere Clients senden
   sendMessage() {
     const messageToSend: Message = {
       sender: this.user.firstName,
@@ -78,16 +85,19 @@ export class AppComponent implements OnInit {
       timestamp: Date.now(),
     };
 
+    // Nachricht an den Server senden
     this.socket$.next({
       type: 'message',
       websocketMessageText: this.messageText,
       sender: this.user.firstName,
     });
 
+    // Nachricht lokal zum Array hinzufügen
     this.messages.push(messageToSend);
     this.messageText = '';
   }
 
+  // Logout-Funktion und WebSocket-Verbindung schließen
   logout() {
     this.socket$.next({
       type: 'logout',
@@ -95,12 +105,14 @@ export class AppComponent implements OnInit {
       sender: 'Server',
     });
 
+    // Logout-Daten entfernen
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('user');
     this.messages = [];
     this.isLoggedIn = false;
     this.user = { firstName: '', lastName: '', email: '' };
 
+    // WebSocket-Verbindung schließen
     this.socket$.complete();
   }
 }

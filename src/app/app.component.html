@@ -23,7 +23,9 @@
         <ul>
           <li *ngFor="let msg of messages">
             <div class="message-header">
-              <strong>{{ msg.sender }}</strong>
+              <strong>{{
+                msg.sender === user.firstName ? "You" : msg.sender
+              }}</strong>
               <span>{{ msg.timestamp | date : "dd.MM.yyyy HH:mm" }}</span>
             </div>
             <div class="message-body">
