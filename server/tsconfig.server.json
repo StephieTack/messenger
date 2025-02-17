@@ -12,7 +12,8 @@
     "noImplicitReturns": true, // Verhindert unklare Rückgabewerte
     "noFallthroughCasesInSwitch": true, // Verhindert unvollständige Switch-Statements
     "experimentalDecorators": true, // Unterstützung für Dekoratoren
-    "emitDecoratorMetadata": true // Dekorator-Metadaten ausgeben
+    "emitDecoratorMetadata": true, // Dekorator-Metadaten ausgeben
+    "typeRoots": ["node_modules/@types"]
   },
   "include": ["server/**/*.ts", "src/**/*.ts", "server.ts"],
   "exclude": [
