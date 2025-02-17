@@ -18,10 +18,9 @@ export class AppComponent implements OnInit {
   isLoggedIn = false;
   user: User = { firstName: '', lastName: '', email: '' };
   messages: Message[] = [];
-  messageText: string = '';
+  messageText = '';
 
   private socket$ = webSocket<WebSocketMessage>('ws://localhost:8080');
-
   private currentUser: string = '';
 
   ngOnInit() {
@@ -36,29 +35,22 @@ export class AppComponent implements OnInit {
     }
   }
 
-  // WebSocket-Verbindung und Nachrichtensubscription initialisieren
-  initializeWebSocket() {
+  private initializeWebSocket(): void {
     this.socket$.subscribe({
       next: (message: WebSocketMessage) => {
-        // Wenn die Nachricht vom aktuellen Benutzer kommt, überspringen wir sie
-        if (message.sender === this.currentUser) {
-          return;
+        if (message.sender !== this.currentUser) {
+          this.messages.push({
+            sender: message.sender,
+            messageText: message.websocketMessageText,
+            timestamp: Date.now(),
+          });
         }
-
-        // Empfangene Nachricht zum Nachrichtenarray hinzufügen
-        this.messages.push({
-          sender: message.sender,
-          messageText: message.websocketMessageText,
-          timestamp: Date.now(),
-        });
       },
       error: (err) => console.error('WebSocket error:', err),
-      complete: () => console.log('WebSocket connection closed'),
     });
   }
 
-  // Login-Funktion und Initialisierung der WebSocket-Verbindung
-  handleLogin(userData: User) {
+  handleLogin(userData: User): void {
     this.user = userData;
     this.isLoggedIn = true;
     this.currentUser = this.user.firstName;
@@ -66,10 +58,8 @@ export class AppComponent implements OnInit {
     localStorage.setItem('isLoggedIn', 'true');
     localStorage.setItem('user', JSON.stringify(userData));
 
-    // WebSocket initialisieren und Login-Nachricht senden
     this.initializeWebSocket();
 
-    // Broadcast der Login-Nachricht an alle anderen Clients (ausgenommen den aktuellen)
     this.socket$.next({
       type: 'login',
       websocketMessageText: 'User has logged in.',
@@ -77,42 +67,38 @@ export class AppComponent implements OnInit {
     });
   }
 
-  // Nachricht an den Server und andere Clients senden
-  sendMessage() {
+  sendMessage(): void {
+    if (!this.messageText.trim()) return;
+
     const messageToSend: Message = {
       sender: this.user.firstName,
       messageText: this.messageText,
       timestamp: Date.now(),
     };
 
-    // Nachricht an den Server senden
     this.socket$.next({
       type: 'message',
       websocketMessageText: this.messageText,
       sender: this.user.firstName,
     });
 
-    // Nachricht lokal zum Array hinzufügen
     this.messages.push(messageToSend);
     this.messageText = '';
   }
 
-  // Logout-Funktion und WebSocket-Verbindung schließen
-  logout() {
+  logout(): void {
     this.socket$.next({
       type: 'logout',
       websocketMessageText: `${this.user.firstName} has logged out.`,
       sender: 'Server',
     });
 
-    // Logout-Daten entfernen
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('user');
     this.messages = [];
     this.isLoggedIn = false;
     this.user = { firstName: '', lastName: '', email: '' };
 
-    // WebSocket-Verbindung schließen
     this.socket$.complete();
   }
 }
