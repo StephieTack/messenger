@@ -1,16 +1,14 @@
 import * as WebSocket from 'ws';
-import { Observable, Subject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map, filter, catchError } from 'rxjs/operators';
 
 const wss = new WebSocket.Server({ port: 8080 });
 
 console.log('WebSocket server is running on ws://localhost:8080');
 
-// WebSocket-Verbindungen verwalten
 wss.on('connection', (ws: WebSocket) => {
   console.log('Client connected.');
 
-  // Begrüßungsnachricht senden
   ws.send(
     JSON.stringify({
       sender: 'Server',
@@ -18,21 +16,19 @@ wss.on('connection', (ws: WebSocket) => {
     })
   );
 
-  // RxJS Observable für Nachrichten
-  const messageStream$ = new Observable<string>((observer) => {
+  const messageStream$: Observable<string> = new Observable((observer) => {
     ws.on('message', (rawMessage: string) => observer.next(rawMessage));
     ws.on('close', () => observer.complete());
     ws.on('error', (error) => observer.error(error));
   });
 
-  // Verarbeite eingehende Nachrichten
   messageStream$
     .pipe(
       map((rawMessage) => {
         console.log(`Received message: ${rawMessage}`);
         return JSON.parse(rawMessage);
       }),
-      filter((parsedMessage) => !!parsedMessage.sender), // Ignoriert Nachrichten ohne Sender
+      filter((parsedMessage) => !!parsedMessage.sender),
       catchError((error) => {
         console.error('Error parsing message:', error);
         return [];
@@ -41,11 +37,8 @@ wss.on('connection', (ws: WebSocket) => {
     .subscribe((parsedMessage) => {
       if (parsedMessage.type === 'login') {
         console.log(`User logged in: ${parsedMessage.sender}`);
-
-        // Speichere den Benutzernamen für spätere Vergleiche
         ws['username'] = parsedMessage.sender;
 
-        // Sende Nachricht nur an den eingeloggten Client
         ws.send(
           JSON.stringify({
             sender: 'Server',
@@ -53,7 +46,6 @@ wss.on('connection', (ws: WebSocket) => {
           })
         );
 
-        // Broadcast-Nachricht an alle anderen Clients senden
         wss.clients.forEach((client) => {
           if (client !== ws && client.readyState === WebSocket.OPEN) {
             client.send(
@@ -65,7 +57,6 @@ wss.on('connection', (ws: WebSocket) => {
           }
         });
       } else {
-        // Andere Nachrichten an alle senden
         wss.clients.forEach((client) => {
           if (client !== ws && client.readyState === WebSocket.OPEN) {
             client.send(
