@@ -42,7 +42,6 @@ wss.on('connection', (ws) => {
 
   ws.on('close', () => {
     console.log('Client disconnected.');
-    broadcastMessage('Server', 'A user has disconnected.');
   });
 
   ws.on('error', (error) => {

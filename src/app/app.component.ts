@@ -92,7 +92,7 @@ export class AppComponent implements OnInit {
     this.socket$.next({
       type: 'logout',
       websocketMessageText: `${this.user.firstName} has logged out.`,
-      sender: this.user.firstName,
+      sender: 'Server',
     });
 
     localStorage.removeItem('isLoggedIn');
