@@ -6,11 +6,11 @@ const wss = new WebSocket.Server({ port: 8080 });
 
 console.log('WebSocket server is running on ws://localhost:8080');
 
-const messageSubject = new Subject<{ sender: string; message: string }>();
-
+// WebSocket-Verbindungen verwalten
 wss.on('connection', (ws: WebSocket) => {
   console.log('Client connected.');
 
+  // Begrüßungsnachricht senden
   ws.send(
     JSON.stringify({
       sender: 'Server',
@@ -18,19 +18,21 @@ wss.on('connection', (ws: WebSocket) => {
     })
   );
 
+  // RxJS Observable für Nachrichten
   const messageStream$ = new Observable<string>((observer) => {
     ws.on('message', (rawMessage: string) => observer.next(rawMessage));
     ws.on('close', () => observer.complete());
     ws.on('error', (error) => observer.error(error));
   });
 
+  // Verarbeite eingehende Nachrichten
   messageStream$
     .pipe(
       map((rawMessage) => {
         console.log(`Received message: ${rawMessage}`);
         return JSON.parse(rawMessage);
       }),
-      filter((parsedMessage) => !!parsedMessage.sender),
+      filter((parsedMessage) => !!parsedMessage.sender), // Ignoriert Nachrichten ohne Sender
       catchError((error) => {
         console.error('Error parsing message:', error);
         return [];
@@ -39,33 +41,45 @@ wss.on('connection', (ws: WebSocket) => {
     .subscribe((parsedMessage) => {
       if (parsedMessage.type === 'login') {
         console.log(`User logged in: ${parsedMessage.sender}`);
-        messageSubject.next({
-          sender: 'Server',
-          message: `${parsedMessage.sender} has logged in.`,
+
+        // Speichere den Benutzernamen für spätere Vergleiche
+        ws['username'] = parsedMessage.sender;
+
+        // Sende Nachricht nur an den eingeloggten Client
+        ws.send(
+          JSON.stringify({
+            sender: 'Server',
+            websocketMessageText: 'You have logged in.',
+          })
+        );
+
+        // Broadcast-Nachricht an alle anderen Clients senden
+        wss.clients.forEach((client) => {
+          if (client !== ws && client.readyState === WebSocket.OPEN) {
+            client.send(
+              JSON.stringify({
+                sender: 'Server',
+                websocketMessageText: `${parsedMessage.sender} has logged in.`,
+              })
+            );
+          }
         });
       } else {
-        messageSubject.next({
-          sender: parsedMessage.sender,
-          message: parsedMessage.websocketMessageText || '',
+        // Andere Nachrichten an alle senden
+        wss.clients.forEach((client) => {
+          if (client !== ws && client.readyState === WebSocket.OPEN) {
+            client.send(
+              JSON.stringify({
+                sender: parsedMessage.sender,
+                websocketMessageText: parsedMessage.websocketMessageText || '',
+              })
+            );
+          }
         });
       }
     });
 
-  const broadcastSubscription = messageSubject.subscribe(
-    ({ sender, message }) => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(
-          JSON.stringify({
-            sender,
-            websocketMessageText: message,
-          })
-        );
-      }
-    }
-  );
-
   ws.on('close', () => {
     console.log('Client disconnected.');
-    broadcastSubscription.unsubscribe();
   });
 });
