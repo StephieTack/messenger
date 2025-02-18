@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "./dist", // Ausgabeordner für den Server (Websocket)
+    "outDir": "../dist/out-tsc/server", // Ausgabeordner für den Server (Websocket)
     "target": "ES2022", // Zielversion von JavaScript
     "module": "CommonJS", // Node.js benötigt CommonJS-Module
     "esModuleInterop": true, // Unterstützung für ES-Module mit CommonJS

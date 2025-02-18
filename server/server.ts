@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { map, filter, catchError } from 'rxjs/operators';
 
 // Lange Recherche durchgeführt, um das Problem mit den WebSocket-Typen zu lösen.
-// Es scheint sich nur um einen Typenfehler zu handeln, daher verwende ich @ts-ignore als Workaround.
+// Es scheint sich nur um einen Typenfehler zu handeln, daher verwende ich @ts-ignore vorerst als Workaround.
 // @ts-ignore
 const wss = new WebSocket.Server({ port: 8080 });
 
@@ -43,7 +43,7 @@ wss.on('connection', (ws: WebSocket) => {
     .subscribe((parsedMessage) => {
       if (parsedMessage.type === 'login') {
         console.log(`User logged in: ${parsedMessage.sender}`);
-        ws['username'] = parsedMessage.sender;
+        (ws as any)['username'] = parsedMessage.sender;
 
         ws.send(
           JSON.stringify({
